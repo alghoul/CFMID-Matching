@@ -188,10 +188,10 @@ def parseCFMID(file=''):
 
 
 def sqlCFMID(mass=0.0,ppm=0,mode=''):
-    db = mysql.connect(host="mysql-dev1.epa.gov",
-                   user="halghoul",
-                   passwd="P@ssw0rd",
-                   db="sbox_tcathe02_mspredict")
+    db = mysql.connect(host="host",
+                   user="user",
+                   passwd="pass",
+                   db="db")
     cur = db.cursor()
     query= """select t1.dtxcid as DTXCID, t1.formula as FORMULA,t1.mass as MASS, t1.mz as PMASS, (t1.intensity/maxintensity)*100.0 as INTENSITY0C,
 t1.energy as ENERGY 
