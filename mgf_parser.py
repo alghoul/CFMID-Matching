@@ -12,8 +12,7 @@ import numpy as np
 import CosineDotProduct_v1_2 as cpd
 import pymysql as mysql
 import time
-#from sqlalchemy import create_engine
-#cnx = create_engine('mysql://root:zahra_710@localhost/db')
+
 
 
 dfc = None
@@ -266,8 +265,6 @@ def compare_df(file='',ppm=10,ppm_sl=15,POSMODE=True):
 
     
 
-#read_NTA_data('/home/hussein/Documents/NTA/Python_alt/ENTACT_DataReporting_EPA_MS2.csv')
-#parseCFMID('/home/hussein/Documents/NTA/Python_alt/spectra_ESI-MSMS-neg_mass.dat')
 #compare_df(183.057312)
 #compare_df(183.058217)
 #parseMGF(os.getcwd()+'/20180124_500_neg_MSMS_50ms.mgf') #<--Convert CSV to MGF
