@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar 29 09:57:30 2018
-
-@author: HALGhoul
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Tue Dec 21 10:11:13 2017
 
 @author: Hussein Al Ghoul
