@@ -12,7 +12,8 @@ import numpy as np
 import CosineDotProduct_v1_3 as cpd
 import pymysql as mysql
 import time
-
+#from sqlalchemy import create_engine
+#cnx = create_engine('mysql://root:zahra_710@localhost/db')
 
 
 dfc = None
@@ -92,10 +93,10 @@ def spectrum_reader(file=''):
 
 
 def sqlCFMID(mass=0.0,ppm=0,mode=''):
-    db = mysql.connect(host="host",
-                   user="user",
-                   passwd="pass",
-                   db="db")
+    db = mysql.connect(host="mysql-dev1.epa.gov",
+                   user="halghoul",
+                   passwd="P@ssw0rd",
+                   db="sbox_tcathe02_mspredict")
     cur = db.cursor()
     query= """select t1.dtxcid as DTXCID, t1.formula as FORMULA,t1.mass as MASS, t1.mz as PMASS_x, (t1.intensity/maxintensity)*100.0 as INTENSITY0C,
 t1.energy as ENERGY 
@@ -191,6 +192,8 @@ def merge_pcdl(fpcdl='',df=None):
     df = pd.merge(dfpcdl,df,how='left',on='DTXCID')
     return df
 
+#read_NTA_data('/home/hussein/Documents/NTA/Python_alt/ENTACT_DataReporting_EPA_MS2.csv')
+#parseCFMID('/home/hussein/Documents/NTA/Python_alt/spectra_ESI-MSMS-neg_mass.dat')
 #compare_df(183.057312)
 #compare_df(183.058217)
 #parseMGF(os.getcwd()+'/20180124_500_neg_MSMS_50ms.mgf') #<--Convert CSV to MGF
