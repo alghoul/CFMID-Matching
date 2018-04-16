@@ -18,6 +18,7 @@ from matplotlib import pyplot as plt
 from matplotlib import collections as matcoll
 import pandas as pd
 import numpy as np
+from fractions import Fraction
 
 m=0.6
 n=3
@@ -26,7 +27,7 @@ def Commons(chunks=None,dfU=None,ppm_sl=0):
     df_list=list()
     dfL_list=list()
     dfU['MASS_y'] = dfU['MASS'].round(6) 
-    dfU.rename(columns={'PMASS':'PMASS_y'},inplace=True) 
+    #dfU.rename(columns={'PMASS':'PMASS_y'},inplace=True) 
     dfU['MASS'] = dfU['MASS'].round(1)
     dfU['WEIGHTSM'] = (dfU['INTENSITY0M']**m)*(dfU['PMASS_y']**n)
     for chunk in chunks:
@@ -34,9 +35,10 @@ def Commons(chunks=None,dfU=None,ppm_sl=0):
         dfL = None
         dfL = chunk    
         dfL['MASS_x'] = dfL['MASS']
-        dfL.rename(columns={'PMASS':'PMASS_x'},inplace=True)   
+        #dfL.rename(columns={'PMASS':'PMASS_x'},inplace=True)   
         dfL['MASS'] = dfL['MASS'].round(1)
         dfL['WEIGHTSC'] = (dfL['INTENSITY0C']**m)*(dfL['PMASS_x']**n)
+        dfL = dfL[(dfL['INTENSITY0C']<=100) & (dfL['INTENSITY0C']>0.01)]
         df = pd.merge(dfL,dfU,how='inner',on='MASS')  
         df['MATCHES'] = np.where((((abs(df.PMASS_x-df.PMASS_y)/df.PMASS_x)*1000000)<=ppm_sl),'1','0') 
         df.drop(df[df['MATCHES'] == '0'].index,inplace=True)
@@ -45,15 +47,17 @@ def Commons(chunks=None,dfU=None,ppm_sl=0):
         dfL_list.append(dfL)
     dft=pd.concat(df_list)
     dfLt=pd.concat(dfL_list)
-    WLI = dfLt.groupby(['MASS_x','DTXCID','ENERGY'])['WEIGHTSC'].apply(list).to_dict()  
+    dfLt.to_csv("cfmid.csv",index=False)
+
+    WLI = dfLt.groupby(['MASS_x','DTXCID','FORMULA','ENERGY'])['WEIGHTSC'].apply(list).to_dict()  
     #print WLI    
     WUI = dfU.groupby('MASS_y')['WEIGHTSM'].apply(list).to_dict() 
     print(WUI)
     #df.to_csv("Commons_Output.csv",index=False)
     #WL = ((df['INTENSITY0C']**m)*(df['PMASS_x']**n)).values.tolist()
     #WU = ((df['INTENSITY0M']**m)*(df['PMASS_y']**n)).values.tolist()
-    WL = dft.groupby(['MASS_x','DTXCID','ENERGY'])['WEIGHTSC'].apply(list).to_dict()
-    WU = dft.groupby(['MASS_x','DTXCID','ENERGY'])['WEIGHTSM'].apply(list).to_dict()
+    WL = dft.groupby(['MASS_x','DTXCID','FORMULA','ENERGY'])['WEIGHTSC'].apply(list).to_dict()
+    WU = dft.groupby(['MASS_x','DTXCID','FORMULA','ENERGY'])['WEIGHTSM'].apply(list).to_dict()
     print(len(WL))
     #print WUI
     W = list()
@@ -130,11 +134,14 @@ def Score(dfL=None,dfU=None,Mass=0.0,ppm_sl=0):
         records.append(record)
     #dfL_plot = dfL.loc[dfL['DTXCID'].isin([keys[1]])].reset_index()
     #plot(dfL_plot,dfU)
-    df = pd.DataFrame.from_records(records,columns=['MASS','DTXCID','ENERGY','FD','SCORE'])
-    df.sort_values(['DTXCID','ENERGY'],ascending=[True,True],inplace=True)
-    #df.to_csv('Score_Alllevels.csv',index=False)
-    dfs = df.groupby(['DTXCID','MASS'],as_index=False)[['SCORE','FD']].sum()
+    df = pd.DataFrame.from_records(records,columns=['MASS','DTXCID','FORMULA','ENERGY','FD','SCORE'])
+    df.sort_values(['ENERGY','SCORE'],ascending=[True,True],inplace=True)
+    df['RANK'] = df.groupby(['FORMULA','ENERGY'])['SCORE'].rank(method='dense',ascending=True) # rank according to formula here by adding ['FORMULA','ENERGY']
+    print (df)
+    df.to_csv('Score_Alllevels.csv',index=False)
+    dfs = df.groupby(['DTXCID','MASS','FORMULA'],as_index=False)[['SCORE','FD']].sum()
     dfs.reset_index()
+    dfs['RANK'] = dfs.groupby(['MASS','FORMULA'])['SCORE'].rank(method='dense',ascending=True) # rank according to formula here by adding ['FORMULA','ENERGY']
     if not df.empty:
         dfs.sort_values('SCORE',ascending=False,inplace=True)    
     print (dfs)
